@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Segments — RetailML{% endblock %}
+{% block page_title %}Segmentation clients{% endblock %}
+
+{% block extra_css %}
+<style>
+    .seg-card { 
+        position: relative; 
+        overflow: hidden; 
+    }
+    .seg-icon { 
+        position: absolute; 
+        top: 16px; 
+        right: 16px; 
+        font-size: 28px; 
+        opacity: 0.15; 
+    }
+    .seg-count {
+        font-family: var(--mono);
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 16px;
+    }
+    .seg-title {
+        font-family: var(--display);
+        font-size: 16px;
+        font-weight: 800;
+        margin-bottom: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{% if segments %}
+<div style="margin-bottom:24px;">
+    <div class="grid-3" id="segments-grid">
+        {% for seg in segments %}
+        <div class="card seg-card" data-seg-index="{{ loop.index0 }}">
+            <div class="seg-icon">◈</div>
+            <div class="seg-title">{{ seg.label or 'Segment ' ~ loop.index }}</div>
+            <div class="seg-count">
+                {{ seg.count or 0 }} <span style="font-size:12px; color:var(--muted);">clients</span>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                {% if seg.Recency is defined and seg.Recency is not none %}
+                <div style="display:flex; justify-content:space-between; font-size:12px;">
+                    <span style="color:var(--muted);">Recency moy.</span>
+                    <span style="font-family:var(--mono);">{{ seg.Recency|round(1) }} j</span>
+                </div>
+                {% endif %}
+                {% if seg.Frequency is defined and seg.Frequency is not none %}
+                <div style="display:flex; justify-content:space-between; font-size:12px;">
+                    <span style="color:var(--muted);">Frequency moy.</span>
+                    <span style="font-family:var(--mono);">{{ seg.Frequency|round(1) }} cmd</span>
+                </div>
+                {% endif %}
+                {% if seg.MonetaryTotal is defined and seg.MonetaryTotal is not none %}
+                <div style="display:flex; justify-content:space-between; font-size:12px;">
+                    <span style="color:var(--muted);">Monetary moy.</span>
+                    <span style="font-family:var(--mono);">£{{ seg.MonetaryTotal|round(2) }}</span>
+                </div>
+                {% endif %}
+                {% if seg.Satisfaction is defined and seg.Satisfaction is not none %}
+                <div style="display:flex; justify-content:space-between; font-size:12px;">
+                    <span style="color:var(--muted);">Satisfaction</span>
+                    <span style="font-family:var(--mono);">{{ seg.Satisfaction|round(1) }}/5</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ── Explications ── -->
+<div class="card">
+    <div class="card-title">◎ Interprétation des segments (K-Means + ACP)</div>
+    <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:16px; font-size:13px; line-height:1.6; color:var(--muted);">
+        <div>
+            <strong style="color:var(--text);">Méthode utilisée</strong><br>
+            Les segments sont obtenus par <strong style="color:var(--accent);">K-Means clustering</strong> sur les features preprocessées, après réduction dimensionnelle via <strong style="color:var(--accent);">ACP (PCA)</strong>. Le nombre optimal de clusters k a été déterminé par la méthode du coude et le Silhouette Score.
+        </div>
+        <div>
+            <strong style="color:var(--text);">Utilisation métier</strong><br>
+            Chaque segment représente un profil comportemental distinct permettant de personnaliser les stratégies marketing, adapter les offres de rétention, et prioriser les actions commerciales en fonction de la valeur client.
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    var colors = ['#3b82f6','#22c55e','#ef4444','#f59e0b','#7c3aed','#06b6d4'];
+    var cards = document.querySelectorAll('[data-seg-index]');
+    cards.forEach(function(card) {
+        var idx = parseInt(card.dataset.segIndex, 10);
+        var color = colors[idx % colors.length];
+        card.style.borderTop = '3px solid ' + color;
+        var count = card.querySelector('.seg-count');
+        if (count) count.style.color = color;
+    });
+})();
+</script>
+
+{% else %}
+<div class="card" style="text-align:center; padding:80px 24px;">
+    <div style="font-size:48px; margin-bottom:16px; color:var(--muted);">◈</div>
+    <div style="font-family:var(--display); font-size:20px; font-weight:700; margin-bottom:8px;">Aucun segment disponible</div>
+    <div style="color:var(--muted); margin-bottom:24px;">Le clustering n'a pas encore été exécuté ou les données clusterisées sont introuvables.</div>
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:16px; display:inline-block; text-align:left;">
+        <div style="font-family:var(--mono); font-size:11px; color:var(--muted); margin-bottom:6px;">COMMANDE</div>
+        <code style="font-family:var(--mono); color:var(--accent);">python src/clustering.py</code>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

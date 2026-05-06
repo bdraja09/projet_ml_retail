@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Batch CSV — RetailML{% endblock %}
+{% block page_title %}Prédiction batch{% endblock %}
+
+{% block extra_css %}
+<style>
+    .drop-zone {
+        border: 2px dashed var(--border);
+        border-radius: 12px;
+        padding: 60px 24px;
+        text-align: center;
+        cursor: pointer;
+        transition: all .2s;
+    }
+    .drop-zone:hover { border-color: var(--accent); background: rgba(59,130,246,.04); }
+    .drop-zone input[type=file] { display:none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 640px;">
+    <div class="card">
+        <div class="card-title">▤ Upload fichier CSV</div>
+        <p style="color:var(--muted); font-size:12px; margin-bottom:20px;">
+            Uploadez un fichier CSV contenant les données brutes de vos clients. Le système appliquera automatiquement le preprocessing et retournera les prédictions de churn pour chaque ligne.
+        </p>
+
+        <form method="POST" enctype="multipart/form-data" action="{{ url_for('batch') }}">
+            <label class="drop-zone" id="drop-zone" for="file-input">
+                <input type="file" id="file-input" name="file" accept=".csv" onchange="updateLabel(this)">
+                <div style="font-size:36px; margin-bottom:12px; color:var(--muted);">▤</div>
+                <div style="font-family:var(--display); font-size:16px; font-weight:700; margin-bottom:8px;" id="drop-label">
+                    Glissez votre CSV ici
+                </div>
+                <div style="font-size:12px; color:var(--muted);">ou cliquez pour sélectionner — max 16 MB</div>
+            </label>
+
+            <hr class="divider">
+
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:20px;">
+                <div style="font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted); margin-bottom:10px;">Format attendu</div>
+                <div style="font-size:12px; color:var(--text); line-height:1.8;">
+                    Le CSV doit contenir les colonnes de features (voir documentation). La colonne <code style="background:var(--card); padding:1px 6px; border-radius:4px;">Churn</code> est optionnelle.
+                    Le système retourne <code style="background:var(--card); padding:1px 6px; border-radius:4px;">Churn_Prediction</code>,
+                    <code style="background:var(--card); padding:1px 6px; border-radius:4px;">Churn_Probability</code> et
+                    <code style="background:var(--card); padding:1px 6px; border-radius:4px;">Risk_Level</code>.
+                </div>
+            </div>
+
+            <div style="display:flex; gap:12px; justify-content:flex-end;">
+                <a href="{{ url_for('index') }}" class="btn btn-outline">✕ Annuler</a>
+                <button type="submit" class="btn btn-primary">▤ Lancer le traitement →</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function updateLabel(input) {
+    const label = document.getElementById('drop-label');
+    if (input.files.length > 0) {
+        label.textContent = '✓ ' + input.files[0].name;
+        label.style.color = 'var(--success)';
+    }
+}
+</script>
+{% endblock %}

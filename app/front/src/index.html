@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — RetailML{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- ── KPIs ── -->
+<div class="grid-4">
+    <div class="stat-card blue">
+        <div class="stat-label">Clients analysés</div>
+        <div class="stat-value">{{ stats.n_clients or "—" }}</div>
+        <div class="stat-sub">Dataset chargé</div>
+    </div>
+    <div class="stat-card red">
+        <div class="stat-label">Taux de churn</div>
+        <div class="stat-value">{{ stats.churn_rate or "—" }}{% if stats.churn_rate %}<span style="font-size:16px;color:var(--muted)">%</span>{% endif %}</div>
+        <div class="stat-sub">Clients partis</div>
+    </div>
+    <div class="stat-card cyan">
+        <div class="stat-label">Modèles chargés</div>
+        <div class="stat-value">{{ stats.models_loaded or 0 }}</div>
+        <div class="stat-sub">Prêts à l'inférence</div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-label">Preprocesseur</div>
+        <div class="stat-value" style="font-size:18px; padding-top:6px;">
+            {% if stats.has_preprocessor %}
+                <span class="badge badge-green">✓ Chargé</span>
+            {% else %}
+                <span class="badge badge-yellow">⚠ Absent</span>
+            {% endif %}
+        </div>
+        <div class="stat-sub">Pipeline ML</div>
+    </div>
+</div>
+
+<!-- ── Modèles + Segments ── -->
+<div class="grid-2">
+
+    <!-- Modèles disponibles -->
+    <div class="card">
+        <div class="card-title">◎ Modèles disponibles</div>
+        {% if stats.model_names %}
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                {% set model_meta = {
+                    'churn_rf':      {'label': 'Random Forest',        'type': 'classification', 'color': 'blue'},
+                    'churn_lr':      {'label': 'Logistic Regression',  'type': 'classification', 'color': 'blue'},
+                    'churn_rf_best': {'label': 'RF GridSearch (best)', 'type': 'classification', 'color': 'green'},
+                    'churn_xgb':     {'label': 'XGBoost',              'type': 'classification', 'color': 'green'},
+                    'kmeans':        {'label': 'K-Means Clustering',   'type': 'clustering',     'color': 'yellow'},
+                    'cluster_kmeans':{'label': 'K-Means Clustering',   'type': 'clustering',     'color': 'yellow'},
+                    'cluster_hdbscan':{'label': 'HDBSCAN Clustering',  'type': 'clustering',     'color': 'yellow'},
+                    'pca':           {'label': 'PCA / ACP',            'type': 'réduction dim.', 'color': 'yellow'},
+                    'reg_ridge':     {'label': 'Ridge Regression',     'type': 'régression',     'color': 'blue'},
+                    'reg_rf':        {'label': 'RF Regressor',         'type': 'régression',     'color': 'blue'},
+                    'reg_gb':        {'label': 'GradientBoosting Reg', 'type': 'régression',     'color': 'green'},
+                    'reg_gb_best':   {'label': 'GB Regressor (best)',  'type': 'régression',     'color': 'green'},
+                } %}
+                {% for name in stats.model_names %}
+                    {% set meta = model_meta.get(name, {'label': name, 'type': 'modèle', 'color': 'blue'}) %}
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--surface); border-radius:8px; border:1px solid var(--border);">
+                        <div>
+                            <div style="font-weight:600; font-size:13px;">{{ meta.label }}</div>
+                            <div style="font-size:11px; color:var(--muted); font-family:var(--mono); margin-top:2px;">{{ meta.type }}</div>
+                        </div>
+                        <span class="badge badge-{{ meta.color }}">✓ actif</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align:center; padding:40px; color:var(--muted);">
+                <div style="font-size:32px; margin-bottom:12px;">◌</div>
+                <div>Aucun modèle chargé.</div>
+                <div style="font-size:11px; margin-top:6px;">Exécutez <code style="background:var(--surface); padding:2px 6px; border-radius:4px;">python src/train_model.py</code></div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Distribution des segments -->
+    <div class="card">
+        <div class="card-title">◈ Segments clients</div>
+        {% if stats.cluster_distribution %}
+            {% set total = stats.n_clients or 1 %}
+            {% set colors = ['#3b82f6','#22c55e','#ef4444','#f59e0b','#7c3aed','#06b6d4'] %}
+            <div id="segments-bars">
+                {% for label, count in stats.cluster_distribution.items() %}
+                    {% set pct = ((count / total * 100) if total > 0 else 0)|round(1) %}
+                    <div style="margin-bottom:14px;" class="seg-row" data-pct="{{ pct }}" data-color="{{ colors[loop.index0 % colors|length] }}">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                            <span style="font-size:12px; font-weight:500;">{{ label }}</span>
+                            <span style="font-family:var(--mono); font-size:11px; color:var(--muted);">{{ count }} · {{ pct }}%</span>
+                        </div>
+                        <div class="progress-bar-wrap" style="height:8px; background:var(--surface); border-radius:4px; overflow:hidden;">
+                            <div class="progress-bar" style="height:100%; border-radius:4px; transition:width 0.6s ease;"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align:center; padding:40px; color:var(--muted);">
+                <div style="font-size:32px; margin-bottom:12px;">◈</div>
+                <div>Clustering non effectué.</div>
+                <div style="font-size:11px; margin-top:6px;">Exécutez <code style="background:var(--surface); padding:2px 6px; border-radius:4px;">python src/clustering.py</code></div>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- ── Actions rapides ── -->
+<div class="card">
+    <div class="card-title">▶ Actions rapides</div>
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a href="{{ url_for('predict') }}" class="btn btn-primary">◎ Prédire un client</a>
+        <a href="{{ url_for('batch') }}"   class="btn btn-outline">▤ Upload CSV batch</a>
+        <a href="{{ url_for('segments') }}" class="btn btn-outline">◈ Voir segments</a>
+        <a href="/api/stats" target="_blank" class="btn btn-outline">◻ API Stats</a>
+    </div>
+</div>
+
+<script>
+// Applique les styles dynamiques des progress bars via JS
+(function() {
+    document.querySelectorAll('.seg-row').forEach(function(row) {
+        var pct = row.dataset.pct;
+        var color = row.dataset.color;
+        var bar = row.querySelector('.progress-bar');
+        if (bar) {
+            bar.style.width = pct + '%';
+            bar.style.background = color || 'var(--accent)';
+        }
+    });
+})();
+</script>
+
+{% endblock %}

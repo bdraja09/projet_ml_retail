@@ -1,0 +1,46 @@
+venv/
+.venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+data/raw/*.csv
+data/raw/*.xlsx
+data/raw/*.json
+data/processed/*.csv
+data/train_test/*.csv
+models/*.pkl
+models/*.joblib
+models/*.h5
+models/*.pt
+.env
+.env.*
+secrets.py
+config_local.py
+.vscode/
+*.code-workspace
+.idea/
+*.iml
+*.sublime-project
+*.sublime-workspace
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.log
+*.tmp
+*.temp
+logs/
+tmp/
+# reports/*.png
+# reports/*.html
+# reports/*.pdf
+dist/
+build/
+*.egg-info/
+*.egg

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Résultats Batch — RetailML{% endblock %}
+{% block page_title %}Résultats batch{% endblock %}
+
+{% block content %}
+
+<!-- ── KPIs batch ── -->
+<div class="grid-4" style="margin-bottom:24px;">
+    <div class="stat-card blue">
+        <div class="stat-label">Total analysés</div>
+        <div class="stat-value">{{ stats.total }}</div>
+        <div class="stat-sub">clients dans le batch</div>
+    </div>
+    <div class="stat-card red">
+        <div class="stat-label">À risque (≥50%)</div>
+        <div class="stat-value">{{ stats.at_risk }}</div>
+        <div class="stat-sub">{{ ((stats.at_risk / stats.total) * 100)|round(1) }}% du batch</div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-label">Fidèles (&lt;50%)</div>
+        <div class="stat-value">{{ stats.safe }}</div>
+        <div class="stat-sub">{{ ((stats.safe / stats.total) * 100)|round(1) }}% du batch</div>
+    </div>
+    <div class="stat-card cyan">
+        <div class="stat-label">Proba moyenne</div>
+        <div class="stat-value">{{ stats.avg_proba }}<span style="font-size:16px;color:var(--muted)">%</span></div>
+        <div class="stat-sub">{{ stats.critical }} clients critiques (≥70%)</div>
+    </div>
+</div>
+
+<!-- ── Aperçu ── -->
+<div class="card" style="margin-bottom:20px;">
+    <div class="card-title" style="justify-content:space-between;">
+        <span>▤ Aperçu — 10 premières lignes</span>
+        <a href="{{ url_for('download_predictions') }}" class="btn btn-outline" style="font-size:12px; padding:6px 14px;">
+            ↓ Télécharger CSV complet
+        </a>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    {% set display_cols = ['CustomerID', 'Recency', 'Frequency', 'MonetaryTotal', 'Churn_Prediction', 'Churn_Probability', 'Risk_Level'] %}
+                    {% for col in columns %}
+                        {% if col in display_cols %}
+                        <th>{{ col }}</th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in preview %}
+                <tr>
+                    {% for col in columns %}
+                        {% if col in display_cols %}
+                        <td>
+                            {% if col == 'Risk_Level' %}
+                                {% if row[col] == 'Critique' %}
+                                    <span class="badge badge-red">{{ row[col] }}</span>
+                                {% elif row[col] == 'Élevé' %}
+                                    <span class="badge badge-yellow">{{ row[col] }}</span>
+                                {% else %}
+                                    <span class="badge badge-green">{{ row[col] }}</span>
+                                {% endif %}
+                            {% elif col == 'Churn_Prediction' %}
+                                {% if row[col] == 1 %}
+                                    <span class="badge badge-red">Parti</span>
+                                {% else %}
+                                    <span class="badge badge-green">Fidèle</span>
+                                {% endif %}
+                            {% elif col == 'Churn_Probability' %}
+                                <span style="font-family:var(--mono);">{{ (row[col] * 100)|round(1) }}%</span>
+                            {% else %}
+                                {{ row[col] }}
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div style="display:flex; gap:12px; justify-content:flex-end;">
+    <a href="{{ url_for('batch') }}" class="btn btn-outline">← Nouveau batch</a>
+    <a href="{{ url_for('download_predictions') }}" class="btn btn-primary">↓ Télécharger les résultats</a>
+</div>
+
+{% endblock %}

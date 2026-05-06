@@ -1,0 +1,14 @@
+<!-- Remplacer la progress bar par : -->
+<div class="progress-bar-wrap" style="height:8px; background:var(--surface); border-radius:4px; overflow:hidden;">
+    <div class="progress-bar" data-width="{{ pct }}" style="height:100%; border-radius:4px; transition:width 0.6s ease;"></div>
+</div>
+
+<!-- Et ajouter dans extra_css ou base.html : -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.progress-bar[data-width]').forEach(function(bar) {
+        bar.style.width = bar.dataset.width + '%';
+        bar.style.background = 'var(--accent)';
+    });
+});
+</script>

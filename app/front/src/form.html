@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Prédiction — RetailML{% endblock %}
+{% block page_title %}Prédire un client{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px;">
+    <div class="card">
+        <div class="card-title">◎ Analyse individuelle</div>
+        <form method="POST" action="{{ url_for('predict') }}">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div>
+                    <label style="display:block; font-size:11px; color:var(--muted); margin-bottom:4px;">Récence (jours)</label>
+                    <input type="number" name="recency" value="30" min="0" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text);">
+                </div>
+                <div>
+                    <label style="display:block; font-size:11px; color:var(--muted); margin-bottom:4px;">Fréquence (achats)</label>
+                    <input type="number" name="frequency" value="5" min="0" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text);">
+                </div>
+                <div>
+                    <label style="display:block; font-size:11px; color:var(--muted); margin-bottom:4px;">Monetary Total (£)</label>
+                    <input type="number" name="monetary" value="500" min="0" step="0.01" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text);">
+                </div>
+                <div>
+                    <label style="display:block; font-size:11px; color:var(--muted); margin-bottom:4px;">Monetary Moyen (£)</label>
+                    <input type="number" name="monetary_avg" value="100" min="0" step="0.01" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text);">
+                </div>
+                <div>
+                    <label style="display:block; font-size:11px; color:var(--muted); margin-bottom:4px;">Ancienneté (jours)</label>
+                    <input type="number" name="tenure" value="180" min="0" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text);">
+                </div>
+                <div>
+                    <label style="display:block; font-size:11px; color:var(--muted); margin-bottom:4px;">Âge</label>
+                    <input type="number" name="age" value="35" min="18" max="100" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text);">
+                </div>
+                <div>
+                    <label style="display:block; font-size:11px; color:var(--muted); margin-bottom:4px;">Tickets Support</label>
+                    <input type="number" name="support_tickets" value="1" min="0" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text);">
+                </div>
+                <div>
+                    <label style="display:block; font-size:11px; color:var(--muted); margin-bottom:4px;">Satisfaction (1-5)</label>
+                    <input type="number" name="satisfaction" value="3" min="1" max="5" step="0.1" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text);">
+                </div>
+                <div>
+                    <label style="display:block; font-size:11px; color:var(--muted); margin-bottom:4px;">Ratio Retours</label>
+                    <input type="number" name="return_ratio" value="0.1" min="0" max="1" step="0.01" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text);">
+                </div>
+                <div>
+                    <label style="display:block; font-size:11px; color:var(--muted); margin-bottom:4px;">Ratio Weekend</label>
+                    <input type="number" name="weekend_ratio" value="0.3" min="0" max="1" step="0.01" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text);">
+                </div>
+                <div>
+                    <label style="display:block; font-size:11px; color:var(--muted); margin-bottom:4px;">Produits Uniques</label>
+                    <input type="number" name="unique_products" value="10" min="0" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text);">
+                </div>
+                <div>
+                    <label style="display:block; font-size:11px; color:var(--muted); margin-bottom:4px;">Transactions Annulées</label>
+                    <input type="number" name="cancelled_trans" value="0" min="0" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text);">
+                </div>
+            </div>
+            <div style="margin-top: 20px;">
+                <button type="submit" class="btn btn-primary" style="width:100%;">◎ Lancer l'analyse</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
