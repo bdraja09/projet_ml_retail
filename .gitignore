@@ -15,7 +15,7 @@ data/raw/*.xlsx
 data/raw/*.json
 data/processed/*.csv
 data/train_test/*.csv
-models/*.pkl
+#models/*.pkl
 models/*.joblib
 models/*.h5
 models/*.pt
@@ -37,9 +37,6 @@ Desktop.ini
 *.temp
 logs/
 tmp/
-# reports/*.png
-# reports/*.html
-# reports/*.pdf
 dist/
 build/
 *.egg-info/
